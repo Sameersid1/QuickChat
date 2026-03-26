@@ -69,7 +69,7 @@ userSchema.methods.generateAccessToken=function(){
 )
     
 }
-userSchema.methods.generateRefreshToken=async function(){
+userSchema.methods.generateRefreshToken= function(){
     return jwt.sign({
         _id:this._id
     },
@@ -77,12 +77,12 @@ userSchema.methods.generateRefreshToken=async function(){
     {expiresIn:process.env.REFRESH_TOKEN_EXPIRY}
 )
 }
-userSchema.methods.generateTemporaryToken=async function(){
+userSchema.methods.generateTemporaryToken= function(){
     const unhashedToken=crypto.randomBytes(20).toString("hex")
     
     const hashedToken=crypto.createHash("sha256").update(unhashedToken).digest("hex")
 
-    const tokenExpiry=new Date(Date.now() + 20 * 60 * 1000)
+    const tokenExpiry=Date.now() + 20 * 60 * 1000
     return {unhashedToken,hashedToken,tokenExpiry}
 }
 const User=mongoose.model("User",userSchema)

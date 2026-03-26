@@ -32,7 +32,7 @@ const sendEmail=async(options)=>{
     }
 }
 
-const emailVerifcationMailContent=(username,verificationUrl)=>{
+const emailVerificationMailContent=(username,verificationUrl)=>{
     return{
         body:{
             name:username,

@@ -1,10 +1,11 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import {ApiError} from "../utils/ApiError.js"
-import User from "./models/user.models.js";
+import User from "../models/user.models.js";
 import  jwt from "jsonwebtoken";
 import crypto from 'crypto'
-import { emailVerificationMailContent, sendEmail } from "../utils/mail.js";
+import { emailVerificationMailContent, sendEmail,forgotPasswordMailContent } from "../utils/mail.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const generateAccessAndRefreshToken=async(userId)=>{
     try{
@@ -19,10 +20,12 @@ const generateAccessAndRefreshToken=async(userId)=>{
         throw new ApiError(500,"Something went wrong while generating access tokens")
     }
 }
-
 const registerUser=asyncHandler(async(req,res)=>{
-    const {email,username,password}=req.body
+    const {email,username,password,fullname}=req.body
 
+    if([fullname,email,username,password].some((field)=>field?.trim()==="")){
+        throw new ApiError(400,"All fields are required");
+    } 
     const existingUser=await User.findOne({
         $or:[{username},{email}]
     })
@@ -30,18 +33,38 @@ const registerUser=asyncHandler(async(req,res)=>{
     if(existingUser){
         throw new ApiError(400,"user with email or username already exist",[])
     }
-    const user=await User.create({
+    const avatarLocalPath = req.file?.path;
+    if(!avatarLocalPath){
+        throw new ApiError(400,"Avatar file is missing")
+    }
+    let avatar;
+    try{
+        avatar=await uploadOnCloudinary(avatarLocalPath);
+        console.log("Uploaded avatar ",avatar);
+    }catch(error){
+        console.log("Error uploading avatar ",error);
+        throw new ApiError(500,"Failed to upload the avatar")
+    }
+    try{
+        const user=await User.create({
         email,
         password,
-        username,
+        username:username.toLowerCase(),
+        fullname,
+        avatar: avatar.url,   
         isEmailVerified:false
     })
     const {unhashedToken,hashedToken,tokenExpiry}=user.generateTemporaryToken();
     console.log("unhashed token: ",unhashedToken)
-    user.emailVerficationToken=hashedToken
-    user.emailVerficationExpiry=tokenExpiry
+    user.emailVerificationToken=hashedToken
+    user.emailVerificationExpiry=tokenExpiry
 
-    user.save({validateBeforeSave:false})
+    await user.save({validateBeforeSave:false})
+    await user.save({ validateBeforeSave: false });
+
+    const checkUser = await User.findById(user._id);
+    console.log("DB TOKEN:", checkUser.emailVerificationToken);
+    console.log("DB EXPIRY:", checkUser.emailVerificationExpiry);
 
     await sendEmail({
         email:user?.email,
@@ -66,6 +89,13 @@ const registerUser=asyncHandler(async(req,res)=>{
                 "User registered successfully and email verification has been sent on you email"
             )
         )
+    }catch(error){
+         console.log("User creation failed. ",error);
+        if(avatar){
+            await deleteFromCloudinary(avatar.public_id)
+        }
+        throw new ApiError(509,"Something went wrong while registering a user and images were deleted")
+    }
 })
 const login=asyncHandler(async(req,res)=>{
     const {email,password}=req.body;
@@ -81,7 +111,7 @@ const login=asyncHandler(async(req,res)=>{
     if(!isPasswordValid){
         throw new ApiError(400,"Password is incorrect")
     }
-    const {accessToken,refreshToken}=await generateAccessandRefreshToken(user._id)
+    const {accessToken,refreshToken}=await generateAccessAndRefreshToken(user._id)
 
     const loggedInUser=await User.findById(user._id).select(
         "-password -refreshToken -emailVerificationToken -emailVerificationExpiry"
@@ -150,11 +180,13 @@ const verifyEmail=asyncHandler(async(req,res)=>{
     if(!verificationToken){
         throw new ApiError(400,"Email verification token is missing")
     }
+    console.log("URL TOKEN:", verificationToken);
     let hashedToken=crypto
         .createHash("sha256")
         .update(verificationToken)
         .digest("hex")
     
+        console.log("HASHED FROM URL:", hashedToken);
     const user=await User.findOne({
             emailVerificationToken: hashedToken,
             emailVerificationExpiry: {$gt: Date.now()}
@@ -166,7 +198,7 @@ const verifyEmail=asyncHandler(async(req,res)=>{
     user.emailVerificationExpiry=undefined
     user.isEmailVerified=true
     await user.save({validateBeforeSave: false})
-
+    
     return res
         .status(200)
         .json(
@@ -180,7 +212,6 @@ const verifyEmail=asyncHandler(async(req,res)=>{
         )
 
 })
-
 const resendEmailVerification=asyncHandler(async(req,res)=>{
     const user=await User.findById(req.user?._id)
     if(!user){
@@ -228,6 +259,8 @@ const refreshAccessToken=asyncHandler(async(req,res)=>{
         if(!user){
             throw new ApiError(401,"Invalid refresh token")
         }
+        console.log("Incoming:", incomingRefreshToken)
+        console.log("DB:", user?.refreshToken)
         if(incomingRefreshToken!==user?.refreshToken){
             throw new ApiError(401,"Refresh token expired")
         }
@@ -235,7 +268,7 @@ const refreshAccessToken=asyncHandler(async(req,res)=>{
             httpOnly:true,
             secure:true
         }
-        const {accessToken,refreshToken:newRefreshToken}=generateAccessandRefreshToken(user._id)
+        const {accessToken,refreshToken:newRefreshToken}=generateAccessAndRefreshToken(user._id)
         user.refreshToken=newRefreshToken
         await user.save({validateBeforeSave:false})
 
