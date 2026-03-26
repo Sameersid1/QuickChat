@@ -1,6 +1,10 @@
 import mongoose,{Schema} from "mongoose"
 
 const chatSchema=new Schema({
+    chatName:{
+        type:String,
+        trim:true
+    },
     isGroupChat:{
         type:Boolean,
         default:false
@@ -12,6 +16,10 @@ const chatSchema=new Schema({
     latestMessage:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Message"
+    },
+    groupAdmin:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"User"
     }
 })
 

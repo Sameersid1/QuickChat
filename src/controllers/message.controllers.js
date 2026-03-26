@@ -1,10 +1,9 @@
 import mongoose from "mongoose"
-import { asyncHandler } from "../utils/asyncHandler"
+import { asyncHandler } from "../utils/asyncHandler.js"
 import { ApiResponse } from '../utils/ApiResponse.js'
 import { ApiError } from '../utils/ApiError.js'
-import User from '../models/user.models.js'
 import Message from '../models/message.models.js'
-
+import Chat from "../models/chat.models.js"
 
 const sendMessage=asyncHandler(async(req,res)=>{
     const {content,chatId}=req.body
@@ -18,8 +17,8 @@ const sendMessage=asyncHandler(async(req,res)=>{
         content,
         chat:chatId
     });
-    message:await message.populate("sender","username email")
-    message:await message.populate("chat")
+    message=await message.populate("sender","username email")    // sender ki info like kisne bheja
+    message=await message.populate("chat")   //chatid bhi message me daal diya
 
     await Chat.findByIdAndUpdate(chatId,{
         latestMessage:message._id
@@ -35,9 +34,13 @@ const getMessages=asyncHandler(async(req,res)=>{
         throw new ApiError(400,"Invalid chatId")
     }
 
-    const message=await Chat.find({chat : chatId}).populate("sender","username email").populate("chat")
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 20;
 
-    return res.status(200).json(new ApiResponse(200,message,"Message fetched successfully"))
+    const messages=await Message.find({chat : chatId}).populate("sender","username email").populate("chat")
+                                .sort({createdAt:-1}).skip((page-1)*limit).limit(limit)
+
+    return res.status(200).json(new ApiResponse(200,messages,"Message fetched successfully"))
 })
 export{
     sendMessage,
