@@ -1,10 +1,16 @@
-import {Router} from "routes"
-import { verifyJWT } from "../middlewares/auth.middlewares"
-import { getAllChats } from "../controllers/chat.controllers"
+import {Router} from "express"
+import { verifyJWT } from "../middlewares/auth.middlewares.js"
+import { accessChat,getAllChats,createGroupChat,addToGroup,removeFromGroup,renameGroup } from "../controllers/chat.controllers.js"
 
 const router=Router()
 
 //chat routes
-router.route("/chat").post(verifyJWT,accessChat)
-router.route("/chat").get(verifyJWT,getAllChats)
+router.route("/").post(verifyJWT,accessChat)
+router.route("/").get(verifyJWT,getAllChats)
+
+//group
+router.route("/group").post(verifyJWT,createGroupChat)
+router.route("/group/add").post(verifyJWT,addToGroup)
+router.route("/group/remove").post(verifyJWT,removeFromGroup)
+router.route("/group/rename").post(verifyJWT,renameGroup)
 export default router;

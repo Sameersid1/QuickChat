@@ -46,7 +46,74 @@ const getAllChats=asyncHandler(async(req,res)=>{
     return res.status(200).json(new ApiResponse(200,chats,"All chats fetched successfully"))
 })
 
+const createGroupChat=asyncHandler(async(req,res)=>{
+    const {name,users}=req.body;
+
+    if(!name || !users){
+        throw new ApiError(400,"Name and Users required")
+    }
+
+    const group=await Chat.create({
+        chatName:name,
+        isGroupChat:true,
+        users:[...users,req.user._id],
+        groupAdmin:req.user._id
+    })
+    return res.status(200).json(new ApiResponse(200,group,"Group created"))
+})
+
+const addToGroup=asyncHandler(async(req,res)=>{
+    const {chatId,userId}=req.body
+
+    const chat=await Chat.findById(chatId);
+
+    if(!chat){
+        throw new ApiError(404,"Chat not found")
+    }
+
+    //only admin can add
+    if(chat.groupAdmin.toString()!==req.user._id.toString()){
+        throw new ApiError(403,"Only admin can add members")
+    }
+    const alreadyExists=chat.users.some(
+        (id)=>id.toString()===userId
+    );
+
+    const updatedChat=await Chat.findByIdAndUpdate(
+        chatId,
+        {$addToSet:{users:userId}},
+        {new:true}
+    ).populate("users","-password");
+
+    return res.status(200).json(new ApiResponse(200,updatedChat,alreadyExists?"User already in group":"User added successfully"))
+})
+
+const removeFromGroup=asyncHandler(async(req,res)=>{
+    const {chatId,userId}=req.body
+
+    const chat=await Chat.findByIdAndUpdate(
+        chatId,
+        {$pull:{users:userId}},
+        {new:true}
+    );
+    return res.status(200).json(new ApiResponse(200,chat,"User removed"))
+})
+
+const renameGroup=asyncHandler(async(req,res)=>{
+    const {chatId,name}=req.body;
+
+    const chat=await Chat.findByIdAndUpdate(
+        chatId,
+        {chatName:name},
+        {new:true}
+    )
+    return res.status(200).json(new ApiResponse(200,chat,"Group name changed"))
+})
 export {
     accessChat,
     getAllChats,
+    createGroupChat,
+    addToGroup,
+    removeFromGroup,
+    renameGroup
 }

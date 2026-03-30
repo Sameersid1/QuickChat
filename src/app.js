@@ -26,10 +26,15 @@ app.use(cookieParser())
 
 import healthCheckRouter from "./routes/healthcheck.routes.js"
 import userRouter from "./routes/user.routes.js"
-
+import chatRouter from "./routes/chat.routes.js"
+import messageRouter from "./routes/message.routes.js"
+import notificationRouter from "./routes/notiification.routes.js"
 
 //routes
 
 app.use("/api/v1/healthcheck",healthCheckRouter)
 app.use("/api/v1/users",userRouter)
+app.use("/api/v1/chat",chatRouter)
+app.use("/api/v1/message",messageRouter)
+app.use("/api/v1/notification",notificationRouter)
 export default app

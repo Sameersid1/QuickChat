@@ -14,7 +14,19 @@ const messageSchema=new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Chat",
         required: true
-    }
+    },
+    deliveredTo:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"User"
+        }
+    ],
+    seenBy:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"User"
+        }
+    ]
 },{timestamps:true})
 
 messageSchema.index({chat:1,createdAt:-1})

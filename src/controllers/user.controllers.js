@@ -6,6 +6,7 @@ import  jwt from "jsonwebtoken";
 import crypto from 'crypto'
 import { emailVerificationMailContent, sendEmail,forgotPasswordMailContent } from "../utils/mail.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import bcrypt from "bcrypt"
 
 const generateAccessAndRefreshToken=async(userId)=>{
     try{
@@ -99,7 +100,6 @@ const registerUser=asyncHandler(async(req,res)=>{
 })
 const login=asyncHandler(async(req,res)=>{
     const {email,password}=req.body;
-
     if(!email){
         throw new ApiError(400,"Email is required")
     }
@@ -112,7 +112,6 @@ const login=asyncHandler(async(req,res)=>{
         throw new ApiError(400,"Password is incorrect")
     }
     const {accessToken,refreshToken}=await generateAccessAndRefreshToken(user._id)
-
     const loggedInUser=await User.findById(user._id).select(
         "-password -refreshToken -emailVerificationToken -emailVerificationExpiry"
     );
