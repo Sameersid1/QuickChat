@@ -1,10 +1,35 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import api from "../api/axios";
+import { useNavigate } from "react-router-dom";
+import Chat from "../pages/Chat.jsx"
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  
+  const navigate = useNavigate();
+  const handleLogin=async()=>{
+    try{
+      const res=await api.post("/users/login",{
+        email,
+        password
+      });
+      console.log("FULL RESPONSE:", res);
+      const token=res.data.data.token
+      console.log(res.data);
+      localStorage.setItem("token",token)
+      localStorage.setItem("user", JSON.stringify(res.data.data.user));
+      console.log("Login successful")
 
+      
+      navigate("/Chat");
+
+    }catch(err){
+      console.log("ERROR:", err);
+      console.log(err.response?.data?.message);
+    }
+  }
   return (
     <div className="bg-white p-8 rounded-2xl shadow-xl w-96">
       
@@ -38,7 +63,8 @@ function Login() {
         </span>
       </div>
 
-      <button className="w-full bg-purple-950 hover:bg-purple-800 hover:scale-105 text-white p-3 rounded-lg transition">
+      <button onClick={handleLogin} 
+            className="w-full bg-purple-950 hover:bg-purple-800 hover:scale-105 text-white p-3 rounded-lg transition">
         Login
       </button>
 

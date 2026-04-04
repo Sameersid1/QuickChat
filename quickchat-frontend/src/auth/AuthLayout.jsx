@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 
 const images = [
-  "/public/quickchat-1-page.png",
-  "/public/quickchat-secure.png",
-  "/public/quickchat-3-page.png"
+  "/quickchat-1-page.png",
+  "/quickchat-secure.png",
+  "/quickchat-3-page.png"
 ];
 
 function AuthLayout() {
