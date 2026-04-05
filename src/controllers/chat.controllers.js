@@ -3,6 +3,8 @@ import { asyncHandler } from '../utils/asyncHandler.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
 import { ApiError } from '../utils/ApiError.js'
 import mongoose from "mongoose"
+import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
 
 const accessChat=asyncHandler(async(req,res)=>{
     const {userId}=req.body
@@ -31,6 +33,31 @@ const accessChat=asyncHandler(async(req,res)=>{
     return res.status(200).json(new ApiResponse(200,fullChat,"Chat created successfully"))
 })
 
+const deleteGroup = asyncHandler(async (req, res) => {
+    const { chatId } = req.params;
+
+    if (!chatId) {
+    throw new ApiError(400, "chatId required");
+    }
+
+    const chat = await Chat.findById(chatId);
+
+    if (!chat) {
+        throw new ApiError(404, "Chat not found");
+    }
+
+    // Only admin can delete group
+    if (chat.groupAdmin.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "Only admin can delete group");
+    }
+
+    await Chat.findByIdAndDelete(chatId);
+
+    return res.status(200).json(
+        new ApiResponse(200, null, "Group deleted successfully")
+    );
+});
+
 const getAllChats=asyncHandler(async(req,res)=>{
     const chats=await Chat.find({
         users:{$in:[req.user._id]}
@@ -47,18 +74,29 @@ const getAllChats=asyncHandler(async(req,res)=>{
 })
 
 const createGroupChat=asyncHandler(async(req,res)=>{
-    const {name,users}=req.body;
+    const users = JSON.parse(req.body.users);
+    const name = req.body.name;
 
     if(!name || !users){
         throw new ApiError(400,"Name and Users required")
+    }
+
+    let avatarUrl = "";
+    if (req.file) {
+    const result = await cloudinary.uploader.upload(req.file.path);
+    avatarUrl = result.secure_url;
+
+    fs.unlinkSync(req.file.path);
     }
 
     const group=await Chat.create({
         chatName:name,
         isGroupChat:true,
         users:[...users,req.user._id],
-        groupAdmin:req.user._id
+        groupAdmin:req.user._id,
+        avatar: avatarUrl
     })
+    
     return res.status(200).json(new ApiResponse(200,group,"Group created"))
 })
 
@@ -93,9 +131,9 @@ const removeFromGroup=asyncHandler(async(req,res)=>{
 
     const chat=await Chat.findByIdAndUpdate(
         chatId,
-        {$pull:{users:userId}},
+        { $pull: { users: new mongoose.Types.ObjectId(userId) } },
         {new:true}
-    );
+    ).populate("users","-password");
     return res.status(200).json(new ApiResponse(200,chat,"User removed"))
 })
 
@@ -115,5 +153,6 @@ export {
     createGroupChat,
     addToGroup,
     removeFromGroup,
-    renameGroup
+    renameGroup,
+    deleteGroup
 }

@@ -7,27 +7,32 @@ import Chat from "../pages/Chat.jsx"
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   
   const navigate = useNavigate();
   const handleLogin=async()=>{
     try{
+      setError("")
       const res=await api.post("/users/login",{
         email,
         password
       });
-      console.log("FULL RESPONSE:", res);
+      
       const token=res.data.data.token
-      console.log(res.data);
+      
       localStorage.setItem("token",token)
       localStorage.setItem("user", JSON.stringify(res.data.data.user));
-      console.log("Login successful")
-
       
       navigate("/Chat");
 
-    }catch(err){
-      console.log("ERROR:", err);
-      console.log(err.response?.data?.message);
+    }catch (err) {
+    const errors = err.response?.data?.errors;
+
+    if (errors && errors.length > 0) {
+      const firstError = Object.values(errors[0])[0];
+        setError(firstError);
+    } else {
+        setError(err.response?.data?.message || "Something went wrong");      }
     }
   }
   return (
@@ -52,7 +57,9 @@ function Login() {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-
+      {error && (
+      <p className="text-red-500 text-sm mb-3">{error}</p>
+      )}
       <div className="flex justify-between text-sm mb-4">
         <label className="flex items-center gap-2">
           <input type="checkbox" />

@@ -43,14 +43,12 @@ function MiniSidebar({ activeTab, setActiveTab, user }) {
         <button className="p-3 rounded-xl text-purple-300 hover:bg-purple-800">
           <Phone size={22} />
         </button>
-
+        
       </div>
-
       {/* 🔹 BOTTOM: Settings */}
       <button className="p-3 rounded-xl text-purple-300 hover:bg-purple-800">
         <Settings size={22} />
       </button>
-
     </div>
   );
 }

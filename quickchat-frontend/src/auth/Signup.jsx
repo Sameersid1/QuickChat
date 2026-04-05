@@ -9,6 +9,7 @@ function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [avatar, setAvatar] = useState(null);
+  const [error, setError] = useState("");
 
   const handleSignup=async ()=>{
   try{
@@ -30,9 +31,18 @@ function Signup() {
     alert("Signup successful");
 
   } catch (err) {
-    console.log("ERROR:", err.response?.data || err.message);
-    alert("Signup failed");
+  console.log("ERROR:", err.response?.data || err.message);
+
+  const errors = err.response?.data?.errors;
+  const msg = err.response?.data?.message;
+
+  if (errors && errors.length > 0) {
+    const firstError = Object.values(errors[0])[0];
+    setError(firstError);
+  } else {
+    setError(msg || "Signup failed");
   }
+}
 }
   return (
     <div className="bg-white p-8 rounded-2xl shadow-xl w-96">
@@ -105,6 +115,9 @@ function Signup() {
         
       </div>
     </div>
+      {error && (
+        <p className="text-red-500 text-sm mb-3">{error}</p>
+      )}
       <button onClick={handleSignup}
               className="w-full bg-purple-950 hover:bg-purple-800 hover:scale-105 text-white p-3 rounded-lg transition"  
       >

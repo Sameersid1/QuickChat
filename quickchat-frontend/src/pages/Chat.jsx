@@ -3,6 +3,7 @@ import api from "../api/axios";
 import Sidebar from "../components/Sidebar";
 import ChatArea from "../components/ChatArea";
 import MiniSidebar from "../components/MiniSidebar";
+import GroupModal from "../components/GroupModal";
 
 function Chat() {
   //state still in chat we use props
@@ -10,7 +11,8 @@ function Chat() {
   const [chats, setChats] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const [activeTab,setActiveTab]= useState([])
+  const [activeTab,setActiveTab]= useState("chats")
+  const [showGroupModal, setShowGroupModal] = useState(false);
 
   useEffect(() => {
     const fetchChats = async () => {
@@ -51,9 +53,23 @@ function Chat() {
         searchResults={searchResults}
         setSearchResults={setSearchResults}
         setChats={setChats}
+        setShowGroupModal={setShowGroupModal}
+        activeTab={activeTab}
       />
 
-      <ChatArea selectedChat={selectedChat} user={user} />
+      <ChatArea 
+          selectedChat={selectedChat}
+          user={user}
+          setChats={setChats}
+          setSelectedChat={setSelectedChat} />
+
+      {showGroupModal && (
+      <GroupModal
+        setShowGroupModal={setShowGroupModal}
+        chats={chats}
+        setChats={setChats}
+      />
+    )}
 
     </div>
   );

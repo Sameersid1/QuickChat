@@ -20,6 +20,10 @@ const chatSchema=new Schema({
     groupAdmin:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"User"
+    },
+    avatar: {
+    type: String,
+    default: ""
     }
 })
 

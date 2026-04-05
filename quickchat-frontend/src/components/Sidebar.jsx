@@ -10,14 +10,31 @@ function Sidebar({
   setSearchText,
   searchResults,
   setSearchResults,
-  setChats
+  setChats,
+  setShowGroupModal,
+  activeTab
 }) {
+
+  const filteredChats =
+  activeTab === "groups"
+    ? chats.filter(chat => chat.isGroupChat)
+    : chats;
+
   return (
     <div className="w-[300px] bg-[#1a0f2e] border-r border-purple-900 flex flex-col">
 
       {/* Header */}
       <div className="p-4 text-xl font-semibold border-b border-purple-800">
         Chats
+      </div>
+
+      <div className="px-3 mt-2">
+      <button
+        onClick={() => setShowGroupModal(true)}
+        className="w-full bg-purple-600 hover:bg-purple-700 py-2 rounded-lg text-sm"
+      >
+        + New Group
+      </button>
       </div>
 
       {/* Search */}
@@ -62,11 +79,19 @@ function Sidebar({
 
       {/* Chat List */}
       <div className="flex-1 overflow-y-auto">
-        {chats.map((chat) => {
+        {filteredChats.map((chat) => {
+          const isGroup = chat.isGroupChat;
           const otherUser = chat.users?.find(
             (u) => u._id !== user._id
           );
 
+          const name = isGroup
+            ? chat.chatName
+            : otherUser?.username;
+
+          const avatar = isGroup
+            ? chat.avatar
+            : otherUser?.avatar;
           return (
             <div
               key={chat._id}
@@ -77,12 +102,12 @@ function Sidebar({
               `}
             >
               <img
-                src={otherUser?.avatar || "/default-avatar.png"}
-                className="w-10 h-10 rounded-full object-cover"
+                src={avatar || "/default-avatar.png"}
+                className="w-10 h-10 rounded-full"
               />
 
               <div>
-                <p className="font-medium">{otherUser?.username}</p>
+                <p className="font-medium">{name}</p>
                 <p className="text-sm text-gray-400 truncate w-[180px]">
                   {chat.latestMessage?.content || "No messages yet"}
                 </p>

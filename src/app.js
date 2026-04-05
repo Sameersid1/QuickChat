@@ -13,7 +13,7 @@ app.use(express.static("public"))
 //cors configuration
 //Browser ko clearly bata rahe ho ki kaun-kaun se frontend, kaise, kis type ke request bhej sakte hain.
 app.use(cors({
-    origin: process.env.CORS_ORIGIN?.split(",") || "http://localhost:5173",
+    origin: process.env.CORS_ORIGIN,
     credentials:true,                                                              //Browser ko allow karta hai ki cookies, sessions, auth headers backend ke saath send ho sakein.
     methods:["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
     allowedHeaders:["Content-Type","Authorization"]          //in postman
@@ -37,4 +37,15 @@ app.use("/api/v1/users",userRouter)
 app.use("/api/v1/chat",chatRouter)
 app.use("/api/v1/message",messageRouter)
 app.use("/api/v1/notification",notificationRouter)
+
+// Global Error Handler (VERY IMPORTANT)
+app.use((err, req, res, next) => {
+  console.error("🔥 ERROR:", err);
+
+  res.status(err.statusCode || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+    errors: err.errors || [],
+  });
+});
 export default app
