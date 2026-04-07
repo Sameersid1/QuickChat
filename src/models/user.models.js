@@ -47,6 +47,10 @@ const userSchema=new Schema(
         },
         emailVerificationExpiry: {
             type: Date
+        },
+        bio:{
+            type: String,
+            default: ""
         }
     },
     {timestamps:true}

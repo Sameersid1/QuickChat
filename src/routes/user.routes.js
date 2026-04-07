@@ -1,5 +1,5 @@
 import {Router} from "express"
-import { changeCurrentPassword, forgotPasswordRequest, forgotResetPassword, getCurrentUser, login, logoutUser, refreshAccessToken, registerUser, resendEmailVerification, searchUser ,verifyEmail} from "../controllers/user.controllers.js"
+import { changeCurrentPassword, forgotPasswordRequest, forgotResetPassword, getCurrentUser, login, logoutUser, refreshAccessToken, registerUser, resendEmailVerification, searchUser ,updateProfile,verifyEmail} from "../controllers/user.controllers.js"
 import {validate} from '../middlewares/validator.middleware.js'
 import { verifyJWT } from "../middlewares/auth.middlewares.js"
 import { upload } from "../middlewares/multer.middlewares.js"
@@ -19,4 +19,5 @@ router.route("/current-user").get(verifyJWT,getCurrentUser)
 router.route("/change-password").post(verifyJWT,userChangeCurrentPasswordValidator(),validate,changeCurrentPassword)
 router.route("/resend-email-verification").post(verifyJWT,resendEmailVerification)
 router.route("/search").get(verifyJWT,searchUser)
+router.route("/profile").put(verifyJWT,updateProfile)
 export default router;

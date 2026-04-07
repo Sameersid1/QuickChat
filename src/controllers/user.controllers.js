@@ -175,6 +175,25 @@ const getCurrentUser=asyncHandler(async(req,res)=>{
             )
         )
 })
+const updateProfile = asyncHandler(async (req, res) => {
+  const { bio, fullname, username } = req.body;
+
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  user.bio = bio ?? user.bio;
+  user.fullname = fullname ?? user.fullname;
+  user.username = username ?? user.username;
+
+  await user.save();
+
+  return res.status(200).json(
+    new ApiResponse(200, user, "Profile updated successfully")
+  );
+});
 const verifyEmail=asyncHandler(async(req,res)=>{
     let {verificationToken}=req.params;
 
@@ -406,5 +425,6 @@ export {registerUser,
     forgotPasswordRequest,
     forgotResetPassword,
     changeCurrentPassword,
-    searchUser
+    searchUser,
+    updateProfile
     }
