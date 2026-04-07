@@ -4,8 +4,9 @@ import Sidebar from "../components/Sidebar";
 import ChatArea from "../components/ChatArea";
 import MiniSidebar from "../components/MiniSidebar";
 import GroupModal from "../components/GroupModal";
+import { useNavigate,Navigate  } from "react-router-dom";
 
-function Chat() {
+function Chat({setToken}) {
   //state still in chat we use props
   const [selectedChat, setSelectedChat] = useState(null);
   const [chats, setChats] = useState([]);
@@ -14,20 +15,34 @@ function Chat() {
   const [activeTab,setActiveTab]= useState("chats")
   const [showGroupModal, setShowGroupModal] = useState(false);
   const [user, setUser] = useState(null);
+
+  const navigate = useNavigate();
+
+  const token = localStorage.getItem("token");
+  
   useEffect(() => {
     const fetchChats = async () => {
-      const res = await api.get("/chat");
-      setChats(res.data.data);
+      try{
+        const res = await api.get("/chat");
+        setChats(res.data.data);
+      }catch(err){
+        console.log(err)
+      }
     };
     fetchChats();
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     const searchUsers = async () => {
-      if (!searchText) return;
+      const token = localStorage.getItem("token");
+      if (!searchText || !token) return;
 
-      const res = await api.get(`/users/search?search=${searchText}`);
-      setSearchResults(res.data.data);
+      try{
+        const res = await api.get(`/users/search?search=${searchText}`);
+        setSearchResults(res.data.data);
+      }catch(err){
+        console.log(err)
+      }
     };
     searchUsers();
   }, [searchText]);
@@ -37,8 +52,8 @@ function Chat() {
   if (storedUser) {
     setUser(JSON.parse(storedUser));
   }
-}, []);
-if (!user) return null;
+  }, []);
+  if (!user) return <div>Loading...</div>;
   return (
     <div className="flex h-screen bg-[#0f0f1a] text-white">
 
@@ -60,6 +75,7 @@ if (!user) return null;
         setChats={setChats}
         setShowGroupModal={setShowGroupModal}
         activeTab={activeTab}
+        setToken={setToken}
       />
 
       <ChatArea 

@@ -1,6 +1,8 @@
 import { MessageCircle, Users, Phone, Settings } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 function MiniSidebar({ activeTab, setActiveTab, user }) {
+  const navigate = useNavigate();
   return (
     <div className="w-[85px] bg-[#140c24] flex flex-col items-center justify-between py-4 border-r border-purple-800">
 
@@ -9,7 +11,7 @@ function MiniSidebar({ activeTab, setActiveTab, user }) {
 
         <img
           src={user?.avatar || "/default-avatar.png"}
-          onClick={() => console.log("open profile")}
+          onClick={() => navigate("/profile")}
           className="w-12 h-12 rounded-full object-cover border-2 border-purple-600 hover:scale-105 transition-all cursor-pointer"
         />
 

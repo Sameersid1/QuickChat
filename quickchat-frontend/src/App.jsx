@@ -5,6 +5,7 @@ import Login from "./auth/Login";
 import Signup from "./auth/Signup";
 import Chat from "./pages/Chat";
 import VerifyEmail from "./pages/VerifyEmail";
+import ProfilePage from "./pages/ProfilePage";
 
 function App() {
   const [token, setToken] = useState(null);
@@ -26,12 +27,13 @@ function App() {
         </Route>
 
         <Route
-          path="/chat"
-          element={token ? <Chat /> : <Navigate to="/login" />}
-        />
+            path="/chat"
+            element={token ? <Chat setToken={setToken} /> : <Navigate to="/login" />}
+          />
 
         <Route path="/verify-email/:token" element={<VerifyEmail />} />
 
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
     </BrowserRouter>
   );

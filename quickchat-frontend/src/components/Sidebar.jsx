@@ -1,5 +1,6 @@
-import React from "react";
+import React,{useState} from "react";
 import api from "../api/axios";
+import { useNavigate } from "react-router-dom";
 
 function Sidebar({
   chats,
@@ -12,13 +13,29 @@ function Sidebar({
   setSearchResults,
   setChats,
   setShowGroupModal,
-  activeTab
+  activeTab,
+  setToken
 }) {
-
+  const [openMenu, setOpenMenu] = useState(false);
   const filteredChats =
   activeTab === "groups"
     ? chats.filter(chat => chat.isGroupChat)
     : chats;
+
+  const handleLogout = async () => {
+  try {
+    await api.post("/users/logout");
+  } catch (err) {
+    console.log(err);
+  } finally {
+    localStorage.removeItem("token");
+    setToken(null); // ✅ VERY IMPORTANT
+    delete api.defaults.headers.common["Authorization"];
+    navigate("/login", { replace: true });
+  }
+};
+
+  const navigate = useNavigate();
 
   return (
     <div className="w-[300px] bg-[#1a0f2e] border-r border-purple-900 flex flex-col">
@@ -119,29 +136,57 @@ function Sidebar({
       </div>
 
       {/* Current User */}
-      <div className="p-4 border-t border-purple-700 flex items-center justify-between">
+<div className="p-4 border-t border-purple-700 flex items-center justify-between relative">
 
-        {/* LEFT: Avatar + Name */}
-        <div className="flex items-center gap-3">
-          <img
-            src={user?.avatar || "/default-avatar.png"}
-            className="w-10 h-10 rounded-full object-cover"
-          />
-          <div>
-            <p className="text-sm font-semibold">
-              {user?.username || "User"}
-            </p>
-            <p className="text-xs text-purple-300">Online</p>
-          </div>
-        </div>
-        {/* RIGHT: Profile / Settings */}
-        <button
-          onClick={() => console.log("open profile")}
-          className="text-purple-300 hover:text-white text-lg"
-        >
-          ⋮
-        </button>
-      </div>
+  {/* LEFT */}
+  <div className="flex items-center gap-3">
+    <img
+      src={user?.avatar || "/default-avatar.png"}
+      className="w-10 h-10 rounded-full object-cover"
+    />
+    <div>
+      <p className="text-sm font-semibold">
+        {user?.username || "User"}
+      </p>
+      <p className="text-xs text-purple-300">Online</p>
+    </div>
+  </div>
+
+  {/* RIGHT: 3 dots */}
+  <button
+    onClick={(e) => {
+      e.stopPropagation(); // important
+      setOpenMenu(!openMenu);
+    }}
+    className="text-purple-300 hover:text-white text-lg px-2"
+  >
+    ⋮
+  </button>
+
+  {/* Dropdown */}
+  {openMenu && (
+    <div className="absolute bottom-14 right-4 w-36 bg-[#1e1538] border border-purple-700 rounded-xl shadow-lg z-50">
+      
+      <button
+        onClick={() => {
+          navigate("/profile");
+          setOpenMenu(false);
+        }}
+        className="w-full text-left px-4 py-2 hover:bg-[#2a1d4d]"
+      >
+        Profile
+      </button>
+
+      <button
+        onClick={handleLogout}
+        className="w-full text-left px-4 py-2 text-red-400 hover:bg-[#2a1d4d]"
+      >
+        Logout
+      </button>
+
+    </div>
+  )}
+</div>
     </div>
   );
 }
