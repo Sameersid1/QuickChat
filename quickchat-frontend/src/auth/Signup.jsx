@@ -2,14 +2,17 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../api/axios.js"
 import { Upload } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-function Signup() {
+function Signup({ setToken }) {
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [avatar, setAvatar] = useState(null);
   const [error, setError] = useState("");
+
+  const navigate = useNavigate();
 
   const handleSignup=async ()=>{
   try{
@@ -29,6 +32,10 @@ function Signup() {
 
     console.log(res.data);
     alert("Signup successful");
+    localStorage.removeItem("token");
+    console.log("After removal:", localStorage.getItem("token"));
+    setToken(null);
+    navigate("/login");
 
   } catch (err) {
   console.log("ERROR:", err.response?.data || err.message);

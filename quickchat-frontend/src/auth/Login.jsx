@@ -4,7 +4,7 @@ import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import Chat from "../pages/Chat.jsx"
 
-function Login() {
+function Login({setToken}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -18,16 +18,16 @@ function Login() {
         password
       });
       
-      const token=res.data.data.token
-      
-      localStorage.setItem("token",token)
-      localStorage.setItem("user", JSON.stringify(res.data.data.user));
-      
-      navigate("/Chat");
+      const { accessToken, user } = res.data.data;
+      console.log("LOGIN DATA:", { email, password });
+      localStorage.setItem("token", accessToken);
+      localStorage.setItem("user", JSON.stringify(user));
+      setToken({accessToken})
+      navigate("/chat");
 
     }catch (err) {
     const errors = err.response?.data?.errors;
-
+      console.log("ERROR:", err.response?.data);
     if (errors && errors.length > 0) {
       const firstError = Object.values(errors[0])[0];
         setError(firstError);

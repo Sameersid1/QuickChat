@@ -80,11 +80,12 @@ function Sidebar({
       {/* Chat List */}
       <div className="flex-1 overflow-y-auto">
         {filteredChats.map((chat) => {
+          if (!user || !chat?.users) return null;
           const isGroup = chat.isGroupChat;
           const otherUser = chat.users?.find(
-            (u) => u._id !== user._id
+            (u) => u?._id && user?._id && u._id !== user._id
           );
-
+          if (!otherUser && !chat.isGroupChat) return null;
           const name = isGroup
             ? chat.chatName
             : otherUser?.username;

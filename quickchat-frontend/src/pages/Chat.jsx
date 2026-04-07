@@ -13,7 +13,7 @@ function Chat() {
   const [searchResults, setSearchResults] = useState([]);
   const [activeTab,setActiveTab]= useState("chats")
   const [showGroupModal, setShowGroupModal] = useState(false);
-
+  const [user, setUser] = useState(null);
   useEffect(() => {
     const fetchChats = async () => {
       const res = await api.get("/chat");
@@ -32,8 +32,13 @@ function Chat() {
     searchUsers();
   }, [searchText]);
 
-  const user = JSON.parse(localStorage.getItem("user"));
-
+  useEffect(() => {
+  const storedUser = localStorage.getItem("user");
+  if (storedUser) {
+    setUser(JSON.parse(storedUser));
+  }
+}, []);
+if (!user) return null;
   return (
     <div className="flex h-screen bg-[#0f0f1a] text-white">
 

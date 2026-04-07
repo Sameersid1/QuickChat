@@ -72,7 +72,7 @@ const registerUser=asyncHandler(async(req,res)=>{
         subject:"Please verify your mail",
         mailgenContent:emailVerificationMailContent(
             user.username,
-            `${req.protocol}://${req.get("host")}/api/v1/users/verify-email/${unhashedToken}`
+            `${process.env.CLIENT_URL}/verify-email/${unhashedToken}`
         )
     })
     const createdUser=await User.findById(user._id).select(
@@ -115,13 +115,15 @@ const login=asyncHandler(async(req,res)=>{
     const loggedInUser=await User.findById(user._id).select(
         "-password -refreshToken -emailVerificationToken -emailVerificationExpiry"
     );
-
+    console.log(res.data);
     //cookie
 
     const options={
         httpOnly:true,
         secure: process.env.NODE_ENV ==="production"
     }
+    console.log("LOGIN INPUT:", email, password);
+console.log("DB USER:", user.email, user.password);
     return res
         .status(200)
         .cookie("accessToken",accessToken,options)

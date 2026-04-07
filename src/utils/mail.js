@@ -15,14 +15,18 @@ const sendEmail=async(options)=>{
 
     const transporter=nodemailer.createTransport({
         host:process.env.MAILTRAP_SMTP_HOST,
-        pass:process.env.MAILTRAP_SMTP_PASS
+        pass:process.env.MAILTRAP_SMTP_PASS,
+        auth:{
+            user: process.env.MAILTRAP_SMTP_USER,
+            pass: process.env.MAILTRAP_SMTP_PASS
+        }
     })
     const mail={
         from:"mail.quickchat@wxample.com",
         to:options.email,
-        subject:options.subjects,
+        subject:options.subject,
         text:emailTextual,
-        tml:emailHtml
+        html:emailHtml
     }
     try{
         await transporter.sendMail(mail)
