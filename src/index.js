@@ -40,11 +40,11 @@ io.on("connection", (socket) => {                      //Whenever a user opens y
         socket.to(chatId).emit("stop typing");
     })
 
-    socket.on("setup",(userId)=>{
-        socket.join(userId);   
-        socket.userId = userId;
+    socket.on("setup",(user)=>{
+        socket.join(user._id);   
+        socket.userId = user._id;
 
-    socket.broadcast.emit("user online", userId);
+    socket.broadcast.emit("user online", user._id);
     })
     socket.on("disconnect",()=>{
         console.log("User disconnected: ",socket.userId);
@@ -65,10 +65,10 @@ io.on("connection", (socket) => {                      //Whenever a user opens y
                 }
             }
         );
-        socket.to(chatId).emit("message seen update",{         //Tell other users in this chat:"This user has seen messages"
+        socket.to(chatId).emit("message seen", {
             chatId,
             userId
-        })
+        });
         }catch(error){
             console.log("DB failed ",error)
         }

@@ -34,6 +34,8 @@ const sendMessage=asyncHandler(async(req,res)=>{
 
     console.log("REQ USER: ",req.user)
 
+    const io=req.app.get("io")              //emit → send event      //on → listen for event
+    
     for(const user of chat.users){
         if(user._id.toString()!=req.user._id.toString()){
             await Notification.create({
@@ -50,8 +52,7 @@ const sendMessage=asyncHandler(async(req,res)=>{
         }
     }
 
-    const io=req.app.get("io")              //emit → send event      //on → listen for event
-    io.to(chatId).emit("message received",message)
+    io.to(chatId).emit("message received", message);
 
     return res.status(200).json(new ApiResponse(200,message,"Message sent successfully"))
 })

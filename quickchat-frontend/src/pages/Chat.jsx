@@ -5,6 +5,7 @@ import ChatArea from "../components/ChatArea";
 import MiniSidebar from "../components/MiniSidebar";
 import GroupModal from "../components/GroupModal";
 import { useNavigate,Navigate  } from "react-router-dom";
+import { socket } from "../socket/socket.js";
 
 function Chat({setToken}) {
   //state still in chat we use props
@@ -21,6 +22,7 @@ function Chat({setToken}) {
   const token = localStorage.getItem("token");
   
   useEffect(() => {
+    if (!token) return;
     const fetchChats = async () => {
       try{
         const res = await api.get("/chat");
@@ -49,10 +51,34 @@ function Chat({setToken}) {
 
   useEffect(() => {
   const storedUser = localStorage.getItem("user");
+
+  if (!storedUser) {
+    navigate("/login"); // ✅ redirect instead of loading forever
+    return;
+  }
   if (storedUser) {
     setUser(JSON.parse(storedUser));
   }
   }, []);
+  
+  useEffect(()=>{
+    const user=JSON.parse(localStorage.getItem("user"))
+
+    if(user){
+      socket.connect()
+
+      socket.emit("setup",user)
+
+    }
+    return ()=> socket.disconnect()
+  },[user])
+
+  useEffect(() => {
+  if (!token) {
+    navigate("/login");
+  }
+}, [token]);
+  
   if (!user) return <div>Loading...</div>;
   return (
     <div className="flex h-screen bg-[#0f0f1a] text-white">
@@ -91,7 +117,6 @@ function Chat({setToken}) {
         setChats={setChats}
       />
     )}
-
     </div>
   );
 }

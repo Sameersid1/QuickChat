@@ -29,7 +29,8 @@ function Sidebar({
     console.log(err);
   } finally {
     localStorage.removeItem("token");
-    setToken(null); // ✅ VERY IMPORTANT
+    localStorage.removeItem("user");
+    setToken(null); // VERY IMPORTANT
     delete api.defaults.headers.common["Authorization"];
     navigate("/login", { replace: true });
   }
@@ -100,7 +101,7 @@ function Sidebar({
           if (!user || !chat?.users) return null;
           const isGroup = chat.isGroupChat;
           const otherUser = chat.users?.find(
-            (u) => u?._id && user?._id && u._id !== user._id
+            (u) => u?._id?.toString() !== user?._id?.toString()
           );
           if (!otherUser && !chat.isGroupChat) return null;
           const name = isGroup
