@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:7000/api/v1", // backend URL
+  baseURL: "https://quickchat-backend.onrender.com/api/v1", // backend URL
   withCredentials: true, // if using cookies
 });
 
