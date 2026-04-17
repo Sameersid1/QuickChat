@@ -12,7 +12,7 @@ app.use(cors({
     methods:["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
     allowedHeaders:["Content-Type","Authorization"]          //in postman
 }))
-app.options("*", cors());
+
 //basic configuration
 app.use(express.json({limit:"16kb"}))
 app.use(express.urlencoded({extended:true,limit:"16kb"}))
@@ -38,6 +38,9 @@ app.use("/api/v1/users",userRouter)
 app.use("/api/v1/chat",chatRouter)
 app.use("/api/v1/message",messageRouter)
 app.use("/api/v1/notification",notificationRouter)
+app.get("/test", (req, res) => {
+  res.send("Backend working");
+});
 
 // Global Error Handler (VERY IMPORTANT)
 app.use((err, req, res, next) => {
