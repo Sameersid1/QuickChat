@@ -8,9 +8,7 @@ import dotenv from 'dotenv'
 import Chat from './models/chat.models.js';
 import Message from './models/message.models.js'
 
-dotenv.config({
-    path:'../.env'
-})
+dotenv.config()
 
 const PORT=process.env.PORT || 7001
 
