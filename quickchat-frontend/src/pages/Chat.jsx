@@ -16,6 +16,7 @@ function Chat({setToken}) {
   const [activeTab,setActiveTab]= useState("chats")
   const [showGroupModal, setShowGroupModal] = useState(false);
   const [user, setUser] = useState(null);
+  const [onlineUsers,setOnlineUsers]=useState([])
 
   const navigate = useNavigate();
 
@@ -62,15 +63,89 @@ function Chat({setToken}) {
   }, []);
   
   useEffect(()=>{
-    const user=JSON.parse(localStorage.getItem("user"))
-
     if(user){
       socket.connect()
-
       socket.emit("setup",user)
 
     }
     return ()=> socket.disconnect()
+  },[user])
+
+
+useEffect(() => {
+  if (!user) return;
+
+  const handler = ({ chatId }) => {
+
+    //if already in that chat → ignore
+    if (selectedChat?._id === chatId) return;
+
+    setChats((prev) => {
+      const updated = prev.map((chat) => {
+        if (chat._id !== chatId) return chat;
+
+        return {
+          ...chat,
+          unreadCount: {
+            ...chat.unreadCount,
+            [user._id]: (chat.unreadCount?.[user._id] || 0) + 1
+          }
+        };
+      });
+
+      // moves chat to top
+      const chatToTop = updated.find(c => c._id === chatId);
+      const rest = updated.filter(c => c._id !== chatId);
+
+      return [chatToTop, ...rest];
+    });
+  };
+
+  socket.on("new notification", handler);
+
+  return () => socket.off("new notification", handler);
+}, [user, selectedChat]);
+
+useEffect(() => {
+  if (!selectedChat || !user) return;
+
+  setChats((prev) =>
+    prev.map((chat) => {
+      if (chat._id !== selectedChat._id) return chat;
+
+      return {
+        ...chat,
+        unreadCount: {
+          ...chat.unreadCount,
+          [user._id]: 0
+        }
+      };
+    })
+  );
+}, [selectedChat]);
+
+  useEffect(()=>{
+    if(!user) return;
+
+    //full list on connect
+    socket.on("online users",(users)=>{
+      setOnlineUsers(users);
+    })
+
+    //single user online
+    socket.on("user online",(userId)=>{
+      setOnlineUsers((prev)=>[...new Set([...prev,userId])])
+    })
+
+    //user offline
+    socket.on("user offline",(userId)=>{
+      setOnlineUsers((prev)=>prev.filter(id=>id!==userId))
+    })
+    return ()=>{
+      socket.off("online users");
+      socket.off("user online");
+      socket.off("user offline");
+    }
   },[user])
 
   useEffect(() => {
@@ -102,13 +177,16 @@ function Chat({setToken}) {
         setShowGroupModal={setShowGroupModal}
         activeTab={activeTab}
         setToken={setToken}
+        onlineUsers={onlineUsers} 
       />
 
       <ChatArea 
           selectedChat={selectedChat}
           user={user}
           setChats={setChats}
-          setSelectedChat={setSelectedChat} />
+          setSelectedChat={setSelectedChat} 
+          onlineUsers={onlineUsers}
+          />
 
       {showGroupModal && (
       <GroupModal

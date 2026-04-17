@@ -7,7 +7,7 @@ import RemoveMemberModal from "../components/RemoveMemberModal";
 import ConfirmModal from "../components/ConfirmModal"
 import { socket } from "../socket/socket.js";
 
-function ChatArea({ selectedChat, user,setChats, setSelectedChat }) {
+function ChatArea({ selectedChat, user,setChats, setSelectedChat,onlineUsers }) {
   const [showMenu, setShowMenu] = useState(false);
   const [showRenameModal,setShowRenameModal]=useState(false)
   const [showAddModal,setShowAddModal]=useState(false)
@@ -177,7 +177,7 @@ function ChatArea({ selectedChat, user,setChats, setSelectedChat }) {
     return id && id !== user._id.toString();
   });
 };
-
+const isOnline = otherUser && onlineUsers.includes(otherUser._id.toString());
   return (
     <div className="flex-1 flex flex-col">
 
@@ -196,13 +196,16 @@ function ChatArea({ selectedChat, user,setChats, setSelectedChat }) {
                 ? selectedChat.chatName
                 : otherUser?.username}
             </p>
+            {!selectedChat.isGroupChat && isOnline && (
+              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+            )}
             <p className="text-xs text-purple-300">
               {selectedChat.isGroupChat
                 ? selectedChat.users
                     ?.filter((u) => u._id !== user._id)
                     .map((u) => u.username)
                     .join(", ")
-                : "Online"}
+                : isOnline ? "Online" : "Offline"}
             </p>
           </div>
         </div>

@@ -28,7 +28,10 @@ const sendMessage=asyncHandler(async(req,res)=>{
 
     const chat=await Chat.findByIdAndUpdate(
         chatId,
-        {latestMessage:message.id},
+        {
+            latestMessage:message.id,
+            updatedAt:new Date()
+        },
         {new:true}
     ).populate("users")
 
@@ -38,6 +41,11 @@ const sendMessage=asyncHandler(async(req,res)=>{
     
     for(const user of chat.users){
         if(user._id.toString()!=req.user._id.toString()){
+
+            //unread count
+            await Chat.findByIdAndUpdate(chatId,{
+                $inc:{[`unreadCount.${user._id}`]:1}
+            })
             await Notification.create({
                 sender:req.user._id,
                 receiver:user._id,

@@ -36,7 +36,7 @@ function AuthLayout() {
           />
         ))}
 
-        {/* 🔥 Overlay (important) */}
+        {/*Overlay (important) */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/70 to-black/80 flex flex-col justify-center items-center text-center p-10">
           
         </div>

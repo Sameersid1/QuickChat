@@ -14,7 +14,8 @@ function Sidebar({
   setChats,
   setShowGroupModal,
   activeTab,
-  setToken
+  setToken,
+  onlineUsers
 }) {
   const [openMenu, setOpenMenu] = useState(false);
   const filteredChats =
@@ -104,6 +105,7 @@ function Sidebar({
             (u) => u?._id?.toString() !== user?._id?.toString()
           );
           if (!otherUser && !chat.isGroupChat) return null;
+          const isOnline = onlineUsers.includes(otherUser._id);
           const name = isGroup
             ? chat.chatName
             : otherUser?.username;
@@ -114,7 +116,10 @@ function Sidebar({
           return (
             <div
               key={chat._id}
-              onClick={() => setSelectedChat(chat)}
+              onClick={() => {
+                setSelectedChat(chat);
+                localStorage.setItem("selectedChat", JSON.stringify(chat));
+              }}
               className={`flex items-center gap-3 px-4 py-3 cursor-pointer 
                 hover:bg-purple-800 
                 ${selectedChat?._id === chat._id ? "bg-purple-900" : ""}
@@ -126,10 +131,24 @@ function Sidebar({
               />
 
               <div>
-                <p className="font-medium">{name}</p>
-                <p className="text-sm text-gray-400 truncate w-[180px]">
-                  {chat.latestMessage?.content || "No messages yet"}
-                </p>
+                <div className="flex items-center gap-2">
+  <p className="font-medium">{name}</p>
+
+  {isOnline && (
+    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+  )}
+</div>
+                <div className="flex justify-between items-center w-full">
+                  <p className="text-sm text-gray-400 truncate w-[180px]">
+                    {chat.latestMessage?.content || "no message yet"}
+                  </p>
+
+                  {chat.unreadCount?.[user._id] > 0 && (
+                    <span className="bg-purple-600 text-xs px-2 py-1 rounded-full">
+                      {chat.unreadCount[user._id]}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           );

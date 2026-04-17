@@ -24,6 +24,11 @@ const chatSchema=new Schema({
     avatar: {
     type: String,
     default: ""
+    },
+    unreadCount:{
+        type:Map,
+        of:Number,
+        default:{}
     }
 })
 

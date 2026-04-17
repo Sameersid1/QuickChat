@@ -24,6 +24,8 @@ const io = new Server(server, {                     //Now this server supports r
                                                         //emit → send event      //on → listen for event
 app.set("io", io);                                //We can use socket inside controllers later
 
+const onlineUsers=new Set();
+
 io.on("connection", (socket) => {                      //Whenever a user opens your app → this runs  //(socket) Each user gets their own socketid
     console.log("User connected:", socket.id);         //Prints unique ID of user
 
@@ -44,13 +46,20 @@ io.on("connection", (socket) => {                      //Whenever a user opens y
         socket.join(user._id);   
         socket.userId = user._id;
 
-    socket.broadcast.emit("user online", user._id);
+        onlineUsers.add(user._id.toString());
+
+        socket.emit("online users",Array.from(onlineUsers));
+        
+        socket.broadcast.emit("user online", user._id);
     })
     socket.on("disconnect",()=>{
         console.log("User disconnected: ",socket.userId);
-
+        if (socket.userId) {
+        onlineUsers.delete(socket.userId.toString());
         socket.broadcast.emit("user offline",socket.userId);
+        }
     }) 
+
 
     socket.on("message seen",async({chatId,userId})=>{            //Find all messages in this chat BUT not sent by me   → add me to seenBy
         try{
@@ -65,10 +74,14 @@ io.on("connection", (socket) => {                      //Whenever a user opens y
                 }
             }
         );
-        socket.to(chatId).emit("message seen", {
-            chatId,
-            userId
-        });
+        await Chat.findByIdAndUpdate(chatId,{
+            $set:{[`unreadCount.${userId}`]:0}
+        })
+        //notify other
+        io.to(chatId).emit("message seen", {
+  chatId,
+  userId
+});
         }catch(error){
             console.log("DB failed ",error)
         }

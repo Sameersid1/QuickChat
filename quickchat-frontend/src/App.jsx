@@ -6,6 +6,7 @@ import Signup from "./auth/Signup";
 import Chat from "./pages/Chat";
 import VerifyEmail from "./pages/VerifyEmail";
 import ProfilePage from "./pages/ProfilePage";
+import LandingPage from "./pages/LandingPage";
 
 function App() {
   const [token, setToken] = useState(null);
@@ -17,7 +18,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-
+        <Route path='/' element={<LandingPage />} />
+        
         <Route element={<AuthLayout />}>
           <Route
             path="/login"
