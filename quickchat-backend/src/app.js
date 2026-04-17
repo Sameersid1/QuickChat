@@ -4,12 +4,6 @@ import cookieParser from "cookie-parser"
 
 const app=express()
 
-//basic configuration
-app.use(express.json({limit:"16kb"}))
-app.use(express.urlencoded({extended:true,limit:"16kb"}))
-app.use(express.static("public"))
-
-
 //cors configuration
 //Browser ko clearly bata rahe ho ki kaun-kaun se frontend, kaise, kis type ke request bhej sakte hain.
 app.use(cors({
@@ -18,6 +12,13 @@ app.use(cors({
     methods:["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
     allowedHeaders:["Content-Type","Authorization"]          //in postman
 }))
+
+//basic configuration
+app.use(express.json({limit:"16kb"}))
+app.use(express.urlencoded({extended:true,limit:"16kb"}))
+app.use(express.static("public"))
+
+
 
 //common middleware
 app.use(cookieParser())
