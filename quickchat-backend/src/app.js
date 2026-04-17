@@ -3,7 +3,9 @@ import cors from 'cors'
 import cookieParser from "cookie-parser"
 
 const app=express()
-
+app.get("/", (req, res) => {
+  res.send("ROOT WORKING");
+});
 //cors configuration
 //Browser ko clearly bata rahe ho ki kaun-kaun se frontend, kaise, kis type ke request bhej sakte hain.
 app.use(cors({
@@ -40,6 +42,10 @@ app.use("/api/v1/message",messageRouter)
 app.use("/api/v1/notification",notificationRouter)
 app.get("/test", (req, res) => {
   res.send("Backend working");
+});
+app.use((req, res) => {
+  console.log("❌ UNKNOWN ROUTE:", req.method, req.url);
+  res.status(404).send("Route not found");
 });
 
 // Global Error Handler (VERY IMPORTANT)
