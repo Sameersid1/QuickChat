@@ -16,7 +16,7 @@ const server=http.createServer(app)
 
 const io = new Server(server, {                     //Now this server supports real-time communication
     cors: {                                         //Any frontend (React, etc.) can connect to this socket
-        origin: "http://localhost:5173",
+        origin: true,
         credentials: true,
         methods: ["GET", "POST"]
     }
