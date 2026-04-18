@@ -9,6 +9,10 @@ app.get("/", (req, res) => {
 });
 //cors configuration
 //Browser ko clearly bata rahe ho ki kaun-kaun se frontend, kaise, kis type ke request bhej sakte hain.
+app.use((req, res, next) => {
+  console.log("👉 HIT:", req.method, req.url);
+  next();
+});
 const allowedOrigins = [
   "http://localhost:5173"
 ];
