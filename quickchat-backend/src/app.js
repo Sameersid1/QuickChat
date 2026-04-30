@@ -9,37 +9,19 @@ app.get("/", (req, res) => {
 });
 //cors configuration
 //Browser ko clearly bata rahe ho ki kaun-kaun se frontend, kaise, kis type ke request bhej sakte hain.
-app.use((req, res, next) => {
-  console.log("👉 HIT:", req.method, req.url);
-  next();
-});
+
 const allowedOrigins = [
-  "http://localhost:5173"
+  "http://localhost:5173",
+  process.env.CLIENT_URL
 ];
+
 app.use(cors({
-    origin: allowedOrigins,
+    origin: process.env.CLIENT_URL,
     credentials:true,                                                              //Browser ko allow karta hai ki cookies, sessions, auth headers backend ke saath send ho sakein.
     methods:["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
     allowedHeaders:["Content-Type","Authorization"]          //in postman
 }))
-// ✅ Express 5 SAFE preflight handler
-app.use((req, res, next) => {
-  if (req.method === "OPTIONS") {
-    const origin = req.headers.origin;
 
-    if (allowedOrigins.includes(origin)) {
-      res.setHeader("Access-Control-Allow-Origin", origin);
-    }
-
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-
-    return res.sendStatus(200);
-  }
-
-  next();
-});
 //basic configuration
 app.use(express.json({limit:"16kb"}))
 app.use(express.urlencoded({extended:true,limit:"16kb"}))
