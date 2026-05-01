@@ -3,6 +3,7 @@ import cors from 'cors'
 import cookieParser from "cookie-parser"
 
 console.log("🔥 NEW VERSION DEPLOYED");
+console.log("CLIENT_URL =", process.env.CLIENT_URL);
 const app=express()
 app.get("/", (req, res) => {
   res.send("ROOT WORKING");
