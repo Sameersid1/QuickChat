@@ -36,6 +36,11 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+app.use((req, res, next) => {
+  console.log("👉 HIT:", req.method, req.url);
+  next();
+});
 //basic configuration
 app.use(express.json({limit:"16kb"}))
 app.use(express.urlencoded({extended:true,limit:"16kb"}))
