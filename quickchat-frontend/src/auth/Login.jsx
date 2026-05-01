@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import Chat from "../pages/Chat.jsx"
-import { socket } from "../socket";
+import { socket } from "../socket/socket.js";
 
 function Login({setToken}) {
   const [email, setEmail] = useState("");
