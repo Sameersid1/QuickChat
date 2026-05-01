@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import Chat from "../pages/Chat.jsx"
+import { socket } from "../socket";
 
 function Login({setToken}) {
   const [email, setEmail] = useState("");
@@ -23,6 +24,9 @@ function Login({setToken}) {
       localStorage.setItem("token", accessToken);
       localStorage.setItem("user", JSON.stringify(user));
       setToken({accessToken})
+
+      socket.connect();
+      socket.emit("setup", user);
       navigate("/chat");
 
     }catch (err) {
