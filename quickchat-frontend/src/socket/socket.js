@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-const URL = "http://localhost:7000"; //backend
+const URL = "https://quickchat-backend-0gnj.onrender.com"; //backend
 
 export const socket = io(URL, {
   autoConnect: false,
