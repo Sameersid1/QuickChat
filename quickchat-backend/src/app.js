@@ -15,12 +15,16 @@ const allowedOrigins = [
   process.env.CLIENT_URL
 ];
 
+// app.use(cors({
+//     origin: process.env.CLIENT_URL,
+//     credentials:true,                                                              //Browser ko allow karta hai ki cookies, sessions, auth headers backend ke saath send ho sakein.
+//     methods:["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
+//     allowedHeaders:["Content-Type","Authorization"]          //in postman
+// }))
 app.use(cors({
-    origin: process.env.CLIENT_URL,
-    credentials:true,                                                              //Browser ko allow karta hai ki cookies, sessions, auth headers backend ke saath send ho sakein.
-    methods:["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
-    allowedHeaders:["Content-Type","Authorization"]          //in postman
-}))
+  origin: process.env.CLIENT_URL,
+  credentials: true
+}));
 
 //basic configuration
 app.use(express.json({limit:"16kb"}))
