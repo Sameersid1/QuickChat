@@ -2,7 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import cookieParser from "cookie-parser"
 
-console.log("🔥 NEW VERSION DEPLOYED");
+
 console.log("CLIENT_URL =", process.env.CLIENT_URL);
 const app=express()
 app.get("/", (req, res) => {
@@ -26,7 +26,16 @@ app.use(cors({
   origin: process.env.CLIENT_URL,
   credentials: true
 }));
-
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") {
+    res.header("Access-Control-Allow-Origin", process.env.CLIENT_URL);
+    res.header("Access-Control-Allow-Credentials", "true");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+    return res.sendStatus(200);
+  }
+  next();
+});
 //basic configuration
 app.use(express.json({limit:"16kb"}))
 app.use(express.urlencoded({extended:true,limit:"16kb"}))
