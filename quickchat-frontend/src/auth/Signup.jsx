@@ -11,10 +11,14 @@ function Signup({ setToken }) {
   const [password, setPassword] = useState("");
   const [avatar, setAvatar] = useState(null);
   const [error, setError] = useState("");
+  const [loading,setLoading]=useState(false);
 
   const navigate = useNavigate();
 
   const handleSignup=async ()=>{
+    if(loading) return;
+
+    setLoading(true);
   try{
     const formData = new FormData();
 
@@ -29,7 +33,6 @@ function Signup({ setToken }) {
         "Content-Type": "multipart/form-data",
       },
     });
-
     console.log(res.data);
     alert("Signup successful");
     localStorage.removeItem("token");
@@ -49,13 +52,15 @@ function Signup({ setToken }) {
   } else {
     setError(msg || "Signup failed");
   }
+}finally{
+  setLoading(false)
 }
 }
   return (
     <div className="bg-white p-8 rounded-2xl shadow-xl w-96">
       
       <h2 className="text-2xl font-bold text-center mb-6">
-        Create Account 🚀
+        Create Account 
       </h2>
 
       <input
@@ -126,9 +131,10 @@ function Signup({ setToken }) {
         <p className="text-red-500 text-sm mb-3">{error}</p>
       )}
       <button onClick={handleSignup}
+              disabled={loading}
               className="w-full bg-purple-950 hover:bg-purple-800 hover:scale-105 text-white p-3 rounded-lg transition"  
       >
-        Sign Up
+        {loading ? "Signing up..." : "Sign Up"}
       </button>
 
       <p className="text-center text-sm mt-4">
