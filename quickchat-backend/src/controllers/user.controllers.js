@@ -27,13 +27,6 @@ const registerUser=asyncHandler(async(req,res)=>{
     if([fullname,email,username,password].some((field)=>field?.trim()==="")){
         throw new ApiError(400,"All fields are required");
     } 
-    const existingUser=await User.findOne({
-        $or:[{username},{email}]
-    })
-
-    if(existingUser){
-        throw new ApiError(400,"User with email or username already exist",[])
-    }
     const avatarBuffer = req.file?.buffer;
     if(!avatarBuffer){
         throw new ApiError(400,"Avatar file is missing")
