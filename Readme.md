@@ -3,6 +3,9 @@
 QuickChat is a full-stack real-time chat application built using the MERN stack (MongoDB, Express, React, Node.js). It allows users to connect, communicate instantly, and manage conversations efficiently with a scalable backend architecture.
 
 ---
+## 🚀 Live Demo
+- Frontend: https://quickchat-01.netlify.app
+- Backend: https://quickchat-backend-0gnj.onrender.com
 
 ## 📌 Features
 
