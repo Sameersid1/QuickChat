@@ -34,13 +34,13 @@ const registerUser=asyncHandler(async(req,res)=>{
     if(existingUser){
         throw new ApiError(400,"User with email or username already exist",[])
     }
-    const avatarLocalPath = req.file?.path;
-    if(!avatarLocalPath){
+    const avatarBuffer = req.file?.buffer;
+    if(!avatarBuffer){
         throw new ApiError(400,"Avatar file is missing")
     }
     let avatar;
     try{
-        avatar=await uploadOnCloudinary(avatarLocalPath);
+        avatar=await uploadOnCloudinary(avatarBuffer);
         console.log("Uploaded avatar ",avatar);
     }catch(error){
         console.log("Error uploading avatar ",error);
@@ -52,7 +52,7 @@ const registerUser=asyncHandler(async(req,res)=>{
         password,
         username:username.toLowerCase(),
         fullname,
-        avatar: avatar.url,   
+        avatar: avatar.secure_url,   
         isEmailVerified:false
     })
     const {unhashedToken,hashedToken,tokenExpiry}=user.generateTemporaryToken();
@@ -61,7 +61,6 @@ const registerUser=asyncHandler(async(req,res)=>{
     user.emailVerificationExpiry=tokenExpiry
 
     await user.save({validateBeforeSave:false})
-    await user.save({ validateBeforeSave: false });
 
     const checkUser = await User.findById(user._id);
     console.log("DB TOKEN:", checkUser.emailVerificationToken);
@@ -76,7 +75,7 @@ const registerUser=asyncHandler(async(req,res)=>{
         )
     })
     const createdUser=await User.findById(user._id).select(
-        "-password -refreshToken -emailVerificationToken -emailerificationExpiry"
+        "-password -refreshToken -emailVerificationToken -emailVerificationExpiry"
     )
     if(!createdUser){
         throw new ApiError(500,"Something went wrong while registering a user")
@@ -123,7 +122,7 @@ const login=asyncHandler(async(req,res)=>{
         secure: process.env.NODE_ENV ==="production"
     }
     console.log("LOGIN INPUT:", email, password);
-console.log("DB USER:", user.email, user.password);
+    console.log("DB USER:", user.email, user.password);
     return res
         .status(200)
         .cookie("accessToken",accessToken,options)
