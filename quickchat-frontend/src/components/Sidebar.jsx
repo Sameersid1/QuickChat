@@ -62,7 +62,7 @@ function Sidebar({
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           placeholder="Search..."
-          className="w-full p-2 rounded-lg bg-[#2a1b4d] outline-none"
+          className="bg-[#2a1b4d] mt-2 rounded-lg max-h-[40vh] overflow-y-auto"
         />
 
         {searchResults.length > 0 && (
