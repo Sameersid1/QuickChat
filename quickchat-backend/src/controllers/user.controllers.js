@@ -23,7 +23,7 @@ const generateAccessAndRefreshToken=async(userId)=>{
 }
 const registerUser=asyncHandler(async(req,res)=>{
     const {email,username,password,fullname}=req.body
-
+console.log("Signup API HIT");
     if([fullname,email,username,password].some((field)=>field?.trim()==="")){
         throw new ApiError(400,"All fields are required");
     } 
