@@ -46,8 +46,9 @@ const registerUser=asyncHandler(async(req,res)=>{
         console.log("Error uploading avatar ",error);
         throw new ApiError(500,"Failed to upload the avatar")
     }
+    let user;
     try{
-        const user=await User.create({
+        user=await User.create({
         email,
         password,
         username:username.toLowerCase(),
@@ -55,6 +56,12 @@ const registerUser=asyncHandler(async(req,res)=>{
         avatar: avatar.secure_url,   
         isEmailVerified:false
     })
+    }catch(error){
+        if(error.code===11000){
+            throw new ApiError(400,"User with email or username already exists")
+        }
+        throw new ApiError(403,"Something went wrong while registering user")
+    }
     const {unhashedToken,hashedToken,tokenExpiry}=user.generateTemporaryToken();
     console.log("unhashed token: ",unhashedToken)
     user.emailVerificationToken=hashedToken
@@ -66,7 +73,8 @@ const registerUser=asyncHandler(async(req,res)=>{
     console.log("DB TOKEN:", checkUser.emailVerificationToken);
     console.log("DB EXPIRY:", checkUser.emailVerificationExpiry);
 
-    await sendEmail({
+    try{
+        await sendEmail({
         email:user?.email,
         subject:"Please verify your mail",
         mailgenContent:emailVerificationMailContent(
@@ -74,6 +82,9 @@ const registerUser=asyncHandler(async(req,res)=>{
             `${process.env.CLIENT_URL}/verify-email/${unhashedToken}`
         )
     })
+    }catch(err){
+        console.log("Email failed ",err);
+    }
     const createdUser=await User.findById(user._id).select(
         "-password -refreshToken -emailVerificationToken -emailVerificationExpiry"
     )
@@ -89,13 +100,7 @@ const registerUser=asyncHandler(async(req,res)=>{
                 "User registered successfully and email verification has been sent on you email"
             )
         )
-    }catch(error){
-         console.log("User creation failed. ",error);
-        if(avatar){
-            await deleteFromCloudinary(avatar.public_id)
-        }
-        throw new ApiError(509,"Something went wrong while registering a user and images were deleted")
-    }
+    
 })
 const login=asyncHandler(async(req,res)=>{
     const {email,password}=req.body;
