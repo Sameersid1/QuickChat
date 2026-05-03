@@ -62,11 +62,11 @@ function Sidebar({
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           placeholder="Search..."
-          className="bg-[#2a1b4d] mt-2 rounded-lg max-h-[40vh] overflow-y-auto"
+          className="w-full p-2 rounded-lg bg-[#2a1b4d] outline-none"
         />
 
         {searchResults.length > 0 && (
-          <div className="bg-[#2a1b4d] mt-2 rounded-lg">
+          <div className="bg-[#2a1b4d] mt-2 rounded-lg max-h-[300px] overflow-y-auto">
             {searchResults.map((u) => (
               <div
                 key={u._id}
